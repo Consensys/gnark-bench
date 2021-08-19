@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -25,9 +23,11 @@ import (
 var plonkCmd = &cobra.Command{
 	Use:   "plonk",
 	Short: "runs benchmarks and profiles using PlonK proof system",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("plonk called")
-	},
+	Run:   runPlonk,
+}
+
+func runPlonk(cmd *cobra.Command, args []string) {
+
 }
 
 func init() {
