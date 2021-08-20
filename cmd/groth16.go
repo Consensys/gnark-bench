@@ -18,6 +18,7 @@ package cmd
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"time"
@@ -97,12 +98,16 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		took /= time.Duration(*fCount)
 	}
 
+	log.Println("create circuit")
+	C := c.Circuit(*fCircuitSize)
+
+	log.Println("compile")
 	if *fAlgo == "compile" {
 		startProfile()
 		var err error
 		var ccs frontend.CompiledConstraintSystem
 		for i := 0; i < *fCount; i++ {
-			ccs, err = frontend.Compile(curveID, backend.GROTH16, c.Circuit(*fCircuitSize), *fCircuitSize)
+			ccs, err = frontend.Compile(curveID, backend.GROTH16, C, *fCircuitSize)
 		}
 		stopProfile()
 		assertNoError(err)
@@ -110,12 +115,13 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	ccs, err := frontend.Compile(curveID, backend.GROTH16, c.Circuit(*fCircuitSize), *fCircuitSize)
+	ccs, err := frontend.Compile(curveID, backend.GROTH16, C, *fCircuitSize)
 	assertNoError(err)
 
 	if *fAlgo == "setup" {
 		startProfile()
 		var err error
+		log.Println("setup")
 		for i := 0; i < *fCount; i++ {
 			_, _, err = groth16.Setup(ccs)
 		}
@@ -125,12 +131,15 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	log.Println("witness generation")
 	witness := c.Witness(*fCircuitSize, curveID)
 
 	if *fAlgo == "prove" {
+		log.Println("dummy setup")
 		pk, err := groth16.DummySetup(ccs)
 		assertNoError(err)
 
+		log.Println("prove")
 		startProfile()
 		for i := 0; i < *fCount; i++ {
 			_, err = groth16.Prove(ccs, pk, witness)
@@ -144,12 +153,15 @@ func runGroth16(cmd *cobra.Command, args []string) {
 	if *fAlgo != "verify" {
 		panic("algo at this stage should be verify")
 	}
+	log.Println("setup")
 	pk, vk, err := groth16.Setup(ccs)
 	assertNoError(err)
 
+	log.Println("prove")
 	proof, err := groth16.Prove(ccs, pk, witness)
 	assertNoError(err)
 
+	log.Println("verify")
 	startProfile()
 	for i := 0; i < *fCount; i++ {
 		err = groth16.Verify(proof, vk, witness)
