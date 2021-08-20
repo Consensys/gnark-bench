@@ -17,6 +17,7 @@ type BenchCircuit interface {
 func init() {
 	BenchCircuits = make(map[string]BenchCircuit)
 	BenchCircuits["expo"] = &defaultCircuit{}
+	BenchCircuits["paru"] = &paruCircuit{}
 }
 
 type defaultCircuit struct {

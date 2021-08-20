@@ -3,17 +3,19 @@ module github.com/consensys/gnark-bench
 go 1.17
 
 require (
+	github.com/OlivierBBB/paru v0.0.0
 	github.com/consensys/gnark v0.4.1-0.20210820020417-96a233f64fba
 	github.com/consensys/gnark-crypto v0.4.1-0.20210818174051-018b86471fca
+	github.com/klauspost/cpuid/v2 v2.0.9
 	github.com/pkg/profile v1.6.0
 	github.com/spf13/cobra v1.2.1
 )
 
 require (
+	github.com/consensys/gkr-mimc v0.0.0-20210616104158-c552feb5e6e5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leanovate/gopter v0.2.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -23,3 +25,5 @@ require (
 	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
+
+replace github.com/OlivierBBB/paru => ../../OlivierBBB/paru
