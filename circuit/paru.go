@@ -11,15 +11,17 @@ import (
 type paruCircuit struct {
 }
 
-func (d *paruCircuit) Circuit(size int) frontend.Circuit {
-	chunkSize := 2
+const (
+	chunkSize                   = 2
+	accountTreeDepth            = 32
+	balanceTreeDepth            = 16
+	nMoneyOrderCreationRequests = 200 // crashe à 500, objectif: 1000
+	moneyOrderTreeDepth         = 32
+	moneyOrderBatchDepth        = 16
+)
 
-	// paru settings
-	accountTreeDepth := 32
-	balanceTreeDepth := 16
-	nMoneyOrderCreationRequests := 200 // crashe à 500, objectif: 1000
-	moneyOrderTreeDepth := 32
-	moneyOrderBatchDepth := 16
+func (d *paruCircuit) Circuit(size int) frontend.Circuit {
+
 	// moneyOrderBatchDepth := common.Log2Ceil(nMocrs)
 	c := circuits.AllocateMocReqBatchCircuit(
 		nMoneyOrderCreationRequests, accountTreeDepth, balanceTreeDepth, moneyOrderBatchDepth, moneyOrderTreeDepth, chunkSize,
@@ -28,12 +30,6 @@ func (d *paruCircuit) Circuit(size int) frontend.Circuit {
 }
 
 func (d *paruCircuit) Witness(size int, curveID ecc.ID) frontend.Circuit {
-	chunkSize := 2
-	accountTreeDepth := 32
-	balanceTreeDepth := 16
-	nMoneyOrderCreationRequests := 200 // crashe à 500, objectif: 1000
-	moneyOrderTreeDepth := 32
-	moneyOrderBatchDepth := 16
 
 	// this should be generated from the pb.ProverData
 	mocrs, oldAccountRoot, oldMoRoot, moBatchInclusionProof, moBatchIndex := GenerateMocrBatchWitness(
