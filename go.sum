@@ -56,6 +56,8 @@ github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnht
 github.com/consensys/bavard v0.1.8-0.20210806153619-fcffe4ffd871/go.mod h1:Bpd0/3mZuaj6Sj+PqrmIquiOKy397AKGThQPaGzNXAQ=
 github.com/consensys/gnark v0.4.1-0.20210819150849-89c39ef53211 h1:81Tq5m9lVoDNLp3juvlRC92BW9W2KkmL5iHkX7dQCtI=
 github.com/consensys/gnark v0.4.1-0.20210819150849-89c39ef53211/go.mod h1:lbbG6QgOFV+ERFS8/AyDyDwmRGrYsr+RF35sFLonRDE=
+github.com/consensys/gnark v0.4.1-0.20210820020417-96a233f64fba h1:3RbQFltKIe2xaw4d5ZIh9juzcX1efJ5boEiBn4pSJZM=
+github.com/consensys/gnark v0.4.1-0.20210820020417-96a233f64fba/go.mod h1:lbbG6QgOFV+ERFS8/AyDyDwmRGrYsr+RF35sFLonRDE=
 github.com/consensys/gnark-crypto v0.4.1-0.20210818174051-018b86471fca h1:YuKivJirttUz/FNlAp1dwIiJiYyPOoyno2CoRlfqMNs=
 github.com/consensys/gnark-crypto v0.4.1-0.20210818174051-018b86471fca/go.mod h1:5u+nS08qZhHtugNg17dAnCGqbnRCJ6XSdPj0LyFvAOM=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=

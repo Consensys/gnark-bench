@@ -16,6 +16,16 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/csv"
+	"fmt"
+	"os"
+	"runtime"
+	"time"
+
+	"github.com/consensys/gnark/backend"
+	"github.com/consensys/gnark/backend/plonk"
+	"github.com/consensys/gnark/frontend"
+	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 )
 
@@ -27,6 +37,128 @@ var plonkCmd = &cobra.Command{
 }
 
 func runPlonk(cmd *cobra.Command, args []string) {
+	if err := parseFlags(); err != nil {
+		fmt.Println("error: ", err.Error())
+		cmd.Help()
+		os.Exit(-1)
+	}
+
+	// write to stdout
+	w := csv.NewWriter(os.Stdout)
+	if err := w.Write(benchData{}.headers()); err != nil {
+		fmt.Println("error: ", err.Error())
+		os.Exit(-1)
+	}
+
+	writeResults := func(took time.Duration, ccs frontend.CompiledConstraintSystem) {
+		// check memory usage, max ram requested from OS
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+
+		internal, secret, public := ccs.GetNbVariables()
+		bData := benchData{
+			Backend:             "plonk",
+			Curve:               curveID.String(),
+			Algorithm:           *fAlgo,
+			NbCoefficients:      ccs.GetNbCoefficients(),
+			NbConstraints:       ccs.GetNbConstraints(),
+			NbInternalVariables: internal,
+			NbSecretVariables:   secret,
+			NbPublicVariables:   public,
+			RunTime:             took.Milliseconds(),
+			MaxRAM:              (m.Sys / 1024 / 1024),
+			Throughput:          int(float64(ccs.GetNbConstraints()) / took.Seconds()),
+		}
+
+		if err := w.Write(bData.values()); err != nil {
+			panic(err)
+		}
+		w.Flush()
+	}
+
+	var (
+		start time.Time
+		took  time.Duration
+		prof  interface{ Stop() }
+	)
+
+	startProfile := func() {
+		start = time.Now()
+		if p != nil {
+			prof = profile.Start(p, profile.ProfilePath("."), profile.NoShutdownHook)
+		}
+	}
+
+	stopProfile := func() {
+		took = time.Since(start)
+		if p != nil {
+			prof.Stop()
+		}
+		took /= time.Duration(*fCount)
+	}
+
+	if *fAlgo == "compile" {
+		startProfile()
+		var err error
+		var ccs frontend.CompiledConstraintSystem
+		for i := 0; i < *fCount; i++ {
+			ccs, err = frontend.Compile(curveID, backend.PLONK, c.Circuit(*fCircuitSize), *fCircuitSize)
+		}
+		stopProfile()
+		assertNoError(err)
+		writeResults(took, ccs)
+		return
+	}
+
+	ccs, err := frontend.Compile(curveID, backend.PLONK, c.Circuit(*fCircuitSize), *fCircuitSize)
+	assertNoError(err)
+
+	// create srs
+	srs, err := plonk.NewSRS(ccs)
+	assertNoError(err)
+
+	if *fAlgo == "setup" {
+		startProfile()
+		var err error
+		for i := 0; i < *fCount; i++ {
+			_, _, err = plonk.Setup(ccs, srs)
+		}
+		stopProfile()
+		assertNoError(err)
+		writeResults(took, ccs)
+		return
+	}
+
+	witness := c.Witness(*fCircuitSize, curveID)
+	pk, vk, err := plonk.Setup(ccs, srs)
+	assertNoError(err)
+
+	if *fAlgo == "prove" {
+
+		startProfile()
+		for i := 0; i < *fCount; i++ {
+			_, err = plonk.Prove(ccs, pk, witness)
+		}
+		stopProfile()
+		assertNoError(err)
+		writeResults(took, ccs)
+		return
+	}
+
+	if *fAlgo != "verify" {
+		panic("algo at this stage should be verify")
+	}
+
+	proof, err := plonk.Prove(ccs, pk, witness)
+	assertNoError(err)
+
+	startProfile()
+	for i := 0; i < *fCount; i++ {
+		err = plonk.Verify(proof, vk, witness)
+	}
+	stopProfile()
+	assertNoError(err)
+	writeResults(took, ccs)
 
 }
 

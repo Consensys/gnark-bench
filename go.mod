@@ -3,7 +3,7 @@ module github.com/consensys/gnark-bench
 go 1.17
 
 require (
-	github.com/consensys/gnark v0.4.1-0.20210819150849-89c39ef53211
+	github.com/consensys/gnark v0.4.1-0.20210820020417-96a233f64fba
 	github.com/consensys/gnark-crypto v0.4.1-0.20210818174051-018b86471fca
 	github.com/pkg/profile v1.6.0
 	github.com/spf13/cobra v1.2.1
