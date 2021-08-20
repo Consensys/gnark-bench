@@ -13,11 +13,11 @@ type paruCircuit struct {
 
 const (
 	chunkSize                   = 2
-	accountTreeDepth            = 16
-	balanceTreeDepth            = 8
-	nMoneyOrderCreationRequests = 50 // crashe à 500, objectif: 1000
-	moneyOrderTreeDepth         = 16
-	moneyOrderBatchDepth        = 8
+	accountTreeDepth            = 32
+	balanceTreeDepth            = 16
+	nMoneyOrderCreationRequests = 200 // crashe à 500, objectif: 1000
+	moneyOrderTreeDepth         = 32
+	moneyOrderBatchDepth        = 16
 )
 
 func (d *paruCircuit) Circuit(size int) frontend.Circuit {
