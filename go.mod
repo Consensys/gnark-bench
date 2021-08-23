@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/OlivierBBB/paru v0.0.0
-	github.com/consensys/gnark v0.4.1-0.20210820020417-96a233f64fba
-	github.com/consensys/gnark-crypto v0.4.1-0.20210818174051-018b86471fca
+	github.com/consensys/gnark v0.5.0
+	github.com/consensys/gnark-crypto v0.5.0
 	github.com/klauspost/cpuid/v2 v2.0.9
 	github.com/pkg/profile v1.6.0
 	github.com/spf13/cobra v1.2.1
