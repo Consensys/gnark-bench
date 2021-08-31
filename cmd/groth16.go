@@ -18,6 +18,7 @@ package cmd
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"encoding/csv"
 	"fmt"
 	"log"
@@ -137,8 +138,9 @@ func runGroth16(cmd *cobra.Command, args []string) {
 	log.Println("witness generation (FAKE)")
 	_, nbSecret, nbPublic := ccs.GetNbVariables()
 	expectedSize := (nbSecret + nbPublic - 1)
-	buf := make([]byte, expectedSize*fr.Bytes)
+	buf := make([]byte, (expectedSize*fr.Bytes)+4)
 	rand.Read(buf)
+	binary.BigEndian.PutUint32(buf[:4], uint32(expectedSize))
 
 	// witness := c.Witness(*fCircuitSize, curveID)
 
