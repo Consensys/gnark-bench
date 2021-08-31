@@ -12,15 +12,14 @@ type paruCircuit struct {
 }
 
 const (
-	chunkSize                   = 2
-	accountTreeDepth            = 32
-	balanceTreeDepth            = 16
-	nMoneyOrderCreationRequests = 200 // crashe à 500, objectif: 1000
-	moneyOrderTreeDepth         = 32
-	moneyOrderBatchDepth        = 16
+	chunkSize            = 2
+	accountTreeDepth     = 32
+	balanceTreeDepth     = 16
+	moneyOrderTreeDepth  = 32
+	moneyOrderBatchDepth = 16
 )
 
-func (d *paruCircuit) Circuit(size int) frontend.Circuit {
+func (d *paruCircuit) Circuit(nMoneyOrderCreationRequests int) frontend.Circuit {
 
 	// moneyOrderBatchDepth := common.Log2Ceil(nMocrs)
 	c := circuits.AllocateMocReqBatchCircuit(
@@ -29,7 +28,7 @@ func (d *paruCircuit) Circuit(size int) frontend.Circuit {
 	return &c
 }
 
-func (d *paruCircuit) Witness(size int, curveID ecc.ID) frontend.Circuit {
+func (d *paruCircuit) Witness(nMoneyOrderCreationRequests int, curveID ecc.ID) frontend.Circuit {
 
 	// this should be generated from the pb.ProverData
 	mocrs, oldAccountRoot, oldMoRoot, moBatchInclusionProof, moBatchIndex := GenerateMocrBatchWitness(

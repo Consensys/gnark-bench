@@ -16,6 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
+	"crypto/rand"
 	"encoding/csv"
 	"fmt"
 	"log"
@@ -23,6 +25,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/consensys/gnark/backend"
 	"github.com/consensys/gnark/backend/groth16"
 	"github.com/consensys/gnark/frontend"
@@ -131,8 +134,13 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	log.Println("witness generation")
-	witness := c.Witness(*fCircuitSize, curveID)
+	log.Println("witness generation (FAKE)")
+	_, nbSecret, nbPublic := ccs.GetNbVariables()
+	expectedSize := (nbSecret + nbPublic - 1)
+	buf := make([]byte, expectedSize*fr.Bytes)
+	rand.Read(buf)
+
+	// witness := c.Witness(*fCircuitSize, curveID)
 
 	if *fAlgo == "prove" {
 		log.Println("dummy setup")
@@ -142,7 +150,7 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		log.Println("prove")
 		startProfile()
 		for i := 0; i < *fCount; i++ {
-			_, err = groth16.Prove(ccs, pk, witness)
+			_, err = groth16.ReadAndProve(ccs, pk, bytes.NewReader(buf), true)
 		}
 		stopProfile()
 		assertNoError(err)
@@ -150,25 +158,26 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if *fAlgo != "verify" {
-		panic("algo at this stage should be verify")
-	}
-	log.Println("setup")
-	pk, vk, err := groth16.Setup(ccs)
-	assertNoError(err)
+	panic("not implemented")
+	// if *fAlgo != "verify" {
+	// 	panic("algo at this stage should be verify")
+	// }
+	// log.Println("setup")
+	// pk, vk, err := groth16.Setup(ccs)
+	// assertNoError(err)
 
-	log.Println("prove")
-	proof, err := groth16.Prove(ccs, pk, witness)
-	assertNoError(err)
+	// log.Println("prove")
+	// proof, err := groth16.ReadAndProve(ccs, pk, bytes.NewReader(buf))
+	// assertNoError(err)
 
-	log.Println("verify")
-	startProfile()
-	for i := 0; i < *fCount; i++ {
-		err = groth16.Verify(proof, vk, witness)
-	}
-	stopProfile()
-	assertNoError(err)
-	writeResults(took, ccs)
+	// log.Println("verify")
+	// startProfile()
+	// for i := 0; i < *fCount; i++ {
+	// 	err = groth16.Verify(proof, vk, witness)
+	// }
+	// stopProfile()
+	// assertNoError(err)
+	// writeResults(took, ccs)
 
 }
 
