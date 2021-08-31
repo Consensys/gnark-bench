@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/OlivierBBB/paru v0.0.0
-	github.com/consensys/gnark v0.5.0
+	github.com/consensys/gnark v0.5.1-0.20210831032145-7aa7f92fbe36
 	github.com/consensys/gnark-crypto v0.5.0
 	github.com/klauspost/cpuid/v2 v2.0.9
 	github.com/pkg/profile v1.6.0
@@ -16,7 +16,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/leanovate/gopter v0.2.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
