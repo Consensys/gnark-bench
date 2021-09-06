@@ -26,7 +26,7 @@ Flags:
       --algo string      name of the algorithm to benchmark. must be compile, setup, prove or verify (default "prove")
       --circuit string   name of the circuit to use (default "expo")
       --count int        bench count (time is averaged on number of executions) (default 2)
-      --curve string     curve name. must be [bn254 bls12_377 bls12_381 bw6_761 bls24_315] (default "bn254")
+      --curve string     curve name. must be [bn254 bls12_377 bls12_381 bw6_761 bls24_315 bw6_633] (default "bn254")
   -h, --help             help for gnark-bench
       --profile string   type of profile. must be none, trace, cpu or mem (default "none")
       --size int         size of the circuit, parameter to circuit constructor (default 10000)
