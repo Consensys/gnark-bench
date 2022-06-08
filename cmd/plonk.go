@@ -22,9 +22,10 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/consensys/gnark/backend"
 	"github.com/consensys/gnark/backend/plonk"
 	"github.com/consensys/gnark/frontend"
+	"github.com/consensys/gnark/frontend/cs/scs"
+	"github.com/consensys/gnark/test"
 	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 )
@@ -102,7 +103,7 @@ func runPlonk(cmd *cobra.Command, args []string) {
 		var err error
 		var ccs frontend.CompiledConstraintSystem
 		for i := 0; i < *fCount; i++ {
-			ccs, err = frontend.Compile(curveID, backend.PLONK, c.Circuit(*fCircuitSize), *fCircuitSize)
+			ccs, err = frontend.Compile(curveID.ScalarField(), scs.NewBuilder, c.Circuit(*fCircuitSize), frontend.WithCapacity(*fCircuitSize))
 		}
 		stopProfile()
 		assertNoError(err)
@@ -110,11 +111,11 @@ func runPlonk(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	ccs, err := frontend.Compile(curveID, backend.PLONK, c.Circuit(*fCircuitSize), *fCircuitSize)
+	ccs, err := frontend.Compile(curveID.ScalarField(), scs.NewBuilder, c.Circuit(*fCircuitSize), frontend.WithCapacity(*fCircuitSize))
 	assertNoError(err)
 
 	// create srs
-	srs, err := plonk.NewSRS(ccs)
+	srs, err := test.NewKZGSRS(ccs)
 	assertNoError(err)
 
 	if *fAlgo == "setup" {
@@ -152,9 +153,12 @@ func runPlonk(cmd *cobra.Command, args []string) {
 	proof, err := plonk.Prove(ccs, pk, witness)
 	assertNoError(err)
 
+	publicWitness, err := witness.Public()
+	assertNoError(err)
+
 	startProfile()
 	for i := 0; i < *fCount; i++ {
-		err = plonk.Verify(proof, vk, witness)
+		err = plonk.Verify(proof, vk, publicWitness)
 	}
 	stopProfile()
 	assertNoError(err)

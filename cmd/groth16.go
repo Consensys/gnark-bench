@@ -22,9 +22,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/consensys/gnark/backend"
 	"github.com/consensys/gnark/backend/groth16"
 	"github.com/consensys/gnark/frontend"
+	"github.com/consensys/gnark/frontend/cs/r1cs"
 	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 )
@@ -102,7 +102,7 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		var err error
 		var ccs frontend.CompiledConstraintSystem
 		for i := 0; i < *fCount; i++ {
-			ccs, err = frontend.Compile(curveID, backend.GROTH16, c.Circuit(*fCircuitSize), *fCircuitSize)
+			ccs, err = frontend.Compile(curveID.ScalarField(), r1cs.NewBuilder, c.Circuit(*fCircuitSize), frontend.WithCapacity(*fCircuitSize))
 		}
 		stopProfile()
 		assertNoError(err)
@@ -110,7 +110,7 @@ func runGroth16(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	ccs, err := frontend.Compile(curveID, backend.GROTH16, c.Circuit(*fCircuitSize), *fCircuitSize)
+	ccs, err := frontend.Compile(curveID.ScalarField(), r1cs.NewBuilder, c.Circuit(*fCircuitSize), frontend.WithCapacity(*fCircuitSize))
 	assertNoError(err)
 
 	if *fAlgo == "setup" {
@@ -150,9 +150,11 @@ func runGroth16(cmd *cobra.Command, args []string) {
 	proof, err := groth16.Prove(ccs, pk, witness)
 	assertNoError(err)
 
+	publicWitness, err := witness.Public()
+	assertNoError(err)
 	startProfile()
 	for i := 0; i < *fCount; i++ {
-		err = groth16.Verify(proof, vk, witness)
+		err = groth16.Verify(proof, vk, publicWitness)
 	}
 	stopProfile()
 	assertNoError(err)
