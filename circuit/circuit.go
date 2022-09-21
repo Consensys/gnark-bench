@@ -95,6 +95,7 @@ func (d *defaultCircuit) Witness(size int, curveID ecc.ID) *witness.Witness {
 		panic("not implemented")
 	}
 
+	witness.Y = (2)
 	w, err := frontend.NewWitness(&witness, curveID.ScalarField())
 	if err != nil {
 		panic(err)
@@ -111,7 +112,7 @@ type benchCircuit struct {
 
 func (circuit *benchCircuit) Define(api frontend.API) error {
 	for i := 0; i < circuit.n; i++ {
-		circuit.X = api.Mul(circuit.X, circuit.X)
+		_ = api.Mul(circuit.X, circuit.Y)
 	}
 	api.AssertIsEqual(circuit.X, circuit.Y)
 	return nil
