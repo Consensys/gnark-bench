@@ -34,68 +34,67 @@ func (d *defaultCircuit) Circuit(size int) frontend.Circuit {
 func (d *defaultCircuit) Witness(size int, curveID ecc.ID) *witness.Witness {
 	witness := benchCircuit{n: size}
 
-	witness.X = (2)
-
 	switch curveID {
 	case ecc.BN254:
 		// compute expected Y
-		var expectedY bn254fr.Element
-		expectedY.SetInterface(2)
+		var r bn254fr.Element
+		r.SetRandom()
 		for i := 0; i < size; i++ {
-			expectedY.Mul(&expectedY, &expectedY)
+			r.Mul(&r, &r)
 		}
 
-		witness.Y = (expectedY)
+		witness.Y = (r)
 	case ecc.BLS12_381:
 		// compute expected Y
-		var expectedY bls12381fr.Element
-		expectedY.SetInterface(2)
+		var r bls12381fr.Element
+		r.SetRandom()
 		for i := 0; i < size; i++ {
-			expectedY.Mul(&expectedY, &expectedY)
+			r.Mul(&r, &r)
 		}
 
-		witness.Y = (expectedY)
+		witness.Y = (r)
 	case ecc.BLS12_377:
 		// compute expected Y
-		var expectedY bls12377fr.Element
-		expectedY.SetInterface(2)
+		var r bls12377fr.Element
+		r.SetRandom()
 		for i := 0; i < size; i++ {
-			expectedY.Mul(&expectedY, &expectedY)
+			r.Mul(&r, &r)
 		}
 
-		witness.Y = (expectedY)
+		witness.Y = (r)
 	case ecc.BLS24_315:
 		// compute expected Y
-		var expectedY bls24315fr.Element
-		expectedY.SetInterface(2)
+		var r bls24315fr.Element
+		r.SetRandom()
 		for i := 0; i < size; i++ {
-			expectedY.Mul(&expectedY, &expectedY)
+			r.Mul(&r, &r)
 		}
 
-		witness.Y = (expectedY)
+		witness.Y = (r)
 	case ecc.BW6_761:
 		// compute expected Y
-		var expectedY bw6761fr.Element
-		expectedY.SetInterface(2)
+		var r bw6761fr.Element
+		r.SetRandom()
 		for i := 0; i < size; i++ {
-			expectedY.Mul(&expectedY, &expectedY)
+			r.Mul(&r, &r)
 		}
 
-		witness.Y = (expectedY)
+		witness.Y = (r)
 	case ecc.BW6_633:
 		// compute expected Y
-		var expectedY bw6633fr.Element
-		expectedY.SetInterface(2)
+		var r bw6633fr.Element
+		r.SetRandom()
 		for i := 0; i < size; i++ {
-			expectedY.Mul(&expectedY, &expectedY)
+			r.Mul(&r, &r)
 		}
 
-		witness.Y = (expectedY)
+		witness.Y = (r)
 	default:
 		panic("not implemented")
 	}
 
-	witness.Y = (2)
+	witness.X = witness.Y
+
 	w, err := frontend.NewWitness(&witness, curveID.ScalarField())
 	if err != nil {
 		panic(err)
@@ -111,9 +110,19 @@ type benchCircuit struct {
 }
 
 func (circuit *benchCircuit) Define(api frontend.API) error {
-	for i := 0; i < circuit.n; i++ {
-		_ = api.Mul(circuit.X, circuit.Y)
-	}
-	api.AssertIsEqual(circuit.X, circuit.Y)
+	// for i := 0; i < circuit.n; i++ {
+	// 	_ = api.Mul(circuit.X, circuit.Y)
+	// }
+	_ = circuit.multiplier(api)
 	return nil
+}
+
+func (circuit *benchCircuit) multiplier(api frontend.API) frontend.Variable {
+	tmp := make([]frontend.Variable, circuit.n)
+	tmp[0] = api.Add(api.Mul(circuit.X, circuit.X), circuit.Y)
+	for i := 1; i < circuit.n; i++ {
+		tmp[i] = api.Add(api.Mul(tmp[i-1], tmp[i-1]), circuit.Y)
+	}
+
+	return tmp[circuit.n-1]
 }
